@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker-configs/nginx.conf:/etc/nginx/conf.d/default.conf
+      - .:/var/www/html
+    depends_on:
+      - php
+
+  php:
+    build: .
+    container_name: php
+    volumes:
+      - .:/var/www/html
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "passwd"
+      MYSQL_DATABASE: "mydb"
+      MYSQL_USER: "user1"
+      MYSQL_PASSWORD: "passwd"
+  
+  phpmyadmin:
+      image: phpmyadmin:latest
+      container_name: phpmyadmin
+      environment:
+        PMA_HOST: mysql
+        MYSQL_ROOT_PASSWORD: "passwd"
+      ports:
+        - "81:80"
+      depends_on:
+        - mysql
+
+volumes:
+  db_data:
